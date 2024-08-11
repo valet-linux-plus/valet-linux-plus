@@ -180,7 +180,7 @@ class Nginx
      */
     private function rewriteSecureNginxFiles(): void
     {
-        $domain = $this->configuration->get('domain');
+        $domain = $this->configuration->get('domain', 'test');
 
         $this->siteSecure->reSecureForNewDomain($domain, $domain);
     }
