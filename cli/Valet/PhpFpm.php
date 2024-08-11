@@ -297,9 +297,18 @@ class PhpFpm
     {
         $extArray = [];
         $extensionPrefix = $this->pm->getPhpExtensionPrefix($version);
-        foreach (self::COMMON_EXTENSIONS as $ext) {
-            $extArray[] = "{$extensionPrefix}{$ext}";
+
+        if (($this->pm instanceof \Valet\PackageManagers\Pacman)) {
+            foreach (self::COMMON_EXTENSIONS as $ext) {
+                $extArray[] = "{$extensionPrefix}{$ext}";
+            }
+
+        } else {
+            foreach (['gd'] as $ext) {
+                $extArray[] = "{$extensionPrefix}{$ext}";
+            }
         }
+
         $this->pm->ensureInstalled(implode(' ', $extArray));
     }
 
