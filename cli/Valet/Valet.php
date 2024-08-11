@@ -142,22 +142,27 @@ class Valet
             return;
         }
 
-        // Fetch FPM running process
-        $fpmVersions = $this->getRunningFpmVersions($oldHomePath);
+        $fpmVersions = [];
 
-        // Stop running fpm services
-        if (count($fpmVersions)) {
-            foreach ($fpmVersions as $fpmVersion) {
-                PhpFpmFacade::stop($fpmVersion);
+        if ($this->files->isDir($oldHomePath)) {
+            // Fetch FPM running process
+            $fpmVersions = $this->getRunningFpmVersions($oldHomePath);
+
+            // Stop running fpm services
+            if (count($fpmVersions)) {
+                foreach ($fpmVersions as $fpmVersion) {
+                    PhpFpmFacade::stop($fpmVersion);
+                }
             }
-        }
 
-        if ($this->files->exists($oldHomePath . '/valet.sock')) {
-            PhpFpmFacade::stop();
-        }
+            if ($this->files->exists($oldHomePath . '/valet.sock')) {
+                PhpFpmFacade::stop();
+            }
 
-        // Copy directory
-        $this->files->copyDirectory($oldHomePath, $newHomePath);
+            // Copy directory
+            $this->files->copyDirectory($oldHomePath, $newHomePath);
+
+        }
 
         // Replace $oldHomePath to $newHomePath in Certificates, Valet.conf file
         $this->updateNginxConfFiles();
@@ -216,6 +221,7 @@ class Valet
         $runningVersions = [];
 
         $files = $this->files->scandir($homePath);
+
         foreach ($files as $file) {
             preg_match('/valet(\d)(\d)\.sock/', $file, $matches);
             if (count($matches) >= 2) {
