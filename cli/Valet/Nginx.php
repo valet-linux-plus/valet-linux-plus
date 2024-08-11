@@ -136,6 +136,10 @@ class Nginx
      */
     public function configuredSites(): Collection
     {
+        if (!$this->files->exists(VALET_HOME_PATH . '/Nginx')) {
+            return collect([]);
+        }
+
         return collect($this->files->scandir(VALET_HOME_PATH . '/Nginx'))
             ->reject(function ($file) {
                 return str_starts_with($file, '.');

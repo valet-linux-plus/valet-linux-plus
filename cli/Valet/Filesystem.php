@@ -133,6 +133,10 @@ class Filesystem
      */
     public function put(string $path, string $contents, ?string $owner = null): string
     {
+        if (!$this->exists($path)) {
+            $this->ensureDirExists(dirname($path), user());
+        }
+
         $status = file_put_contents($path, $contents);
 
         if ($owner) {
