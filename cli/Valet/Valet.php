@@ -199,7 +199,12 @@ class Valet
         $oldHomePath = OLD_VALET_HOME_PATH;
         $nginxPath = $newHomePath . '/Nginx';
 
-        $siteConfigs = $this->files->scandir($nginxPath);
+        $siteConfigs = [];
+
+        if ($this->files->isDir($nginxPath)) {
+            $siteConfigs = $this->files->scandir($nginxPath);
+        }
+
         foreach ($siteConfigs as $siteConfig) {
             $filePath = \sprintf('%s/%s', $nginxPath, $siteConfig);
             $content = $this->files->get($filePath);
@@ -207,7 +212,11 @@ class Valet
             $this->files->put($filePath, $content);
         }
 
-        $sitesAvailableConf = $this->files->get(Nginx::SITES_AVAILABLE_CONF);
+        $sitesAvailableConf = '';
+        if ($this->files->exists(Nginx::SITES_AVAILABLE_CONF)) {
+            $sitesAvailableConf = $this->files->get(Nginx::SITES_AVAILABLE_CONF);
+        }
+
         $sitesAvailableConf = str_replace($oldHomePath, $newHomePath, $sitesAvailableConf);
         $this->files->put(Nginx::SITES_AVAILABLE_CONF, $sitesAvailableConf);
 
