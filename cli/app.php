@@ -58,7 +58,7 @@ $app->command('install [--ignore-selinux]', function ($ignoreSELinux) {
     Configuration::install();
     Nginx::install();
     PhpFpm::install();
-    DnsMasq::install(Configuration::get('domain'));
+    DnsMasq::install(Configuration::get('domain', 'test'));
     Mailpit::install();
     ValetRedis::install();
     Nginx::restart();

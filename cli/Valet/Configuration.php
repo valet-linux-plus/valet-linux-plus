@@ -90,6 +90,10 @@ class Configuration
      */
     public function get(string $key, $default = null)
     {
+        if (!$this->files->exists($this->path())) {
+            return $default;
+        }
+
         $config = $this->read();
 
         return array_key_exists($key, $config) ? $config[$key] : $default;

@@ -142,22 +142,27 @@ class Valet
             return;
         }
 
-        // Fetch FPM running process
-        $fpmVersions = $this->getRunningFpmVersions($oldHomePath);
+        $fpmVersions = [];
 
-        // Stop running fpm services
-        if (count($fpmVersions)) {
-            foreach ($fpmVersions as $fpmVersion) {
-                PhpFpmFacade::stop($fpmVersion);
+        if ($this->files->isDir($oldHomePath)) {
+            // Fetch FPM running process
+            $fpmVersions = $this->getRunningFpmVersions($oldHomePath);
+
+            // Stop running fpm services
+            if (count($fpmVersions)) {
+                foreach ($fpmVersions as $fpmVersion) {
+                    PhpFpmFacade::stop($fpmVersion);
+                }
             }
-        }
 
-        if ($this->files->exists($oldHomePath . '/valet.sock')) {
-            PhpFpmFacade::stop();
-        }
+            if ($this->files->exists($oldHomePath . '/valet.sock')) {
+                PhpFpmFacade::stop();
+            }
 
-        // Copy directory
-        $this->files->copyDirectory($oldHomePath, $newHomePath);
+            // Copy directory
+            $this->files->copyDirectory($oldHomePath, $newHomePath);
+
+        }
 
         // Replace $oldHomePath to $newHomePath in Certificates, Valet.conf file
         $this->updateNginxConfFiles();
@@ -194,7 +199,12 @@ class Valet
         $oldHomePath = OLD_VALET_HOME_PATH;
         $nginxPath = $newHomePath . '/Nginx';
 
-        $siteConfigs = $this->files->scandir($nginxPath);
+        $siteConfigs = [];
+
+        if ($this->files->isDir($nginxPath)) {
+            $siteConfigs = $this->files->scandir($nginxPath);
+        }
+
         foreach ($siteConfigs as $siteConfig) {
             $filePath = \sprintf('%s/%s', $nginxPath, $siteConfig);
             $content = $this->files->get($filePath);
@@ -202,7 +212,11 @@ class Valet
             $this->files->put($filePath, $content);
         }
 
-        $sitesAvailableConf = $this->files->get(Nginx::SITES_AVAILABLE_CONF);
+        $sitesAvailableConf = '';
+        if ($this->files->exists(Nginx::SITES_AVAILABLE_CONF)) {
+            $sitesAvailableConf = $this->files->get(Nginx::SITES_AVAILABLE_CONF);
+        }
+
         $sitesAvailableConf = str_replace($oldHomePath, $newHomePath, $sitesAvailableConf);
         $this->files->put(Nginx::SITES_AVAILABLE_CONF, $sitesAvailableConf);
 
@@ -216,6 +230,7 @@ class Valet
         $runningVersions = [];
 
         $files = $this->files->scandir($homePath);
+
         foreach ($files as $file) {
             preg_match('/valet(\d)(\d)\.sock/', $file, $matches);
             if (count($matches) >= 2) {

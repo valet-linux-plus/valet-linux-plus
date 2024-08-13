@@ -59,7 +59,7 @@ class PhpFpm
     {
         $version = $version ?: $this->getCurrentVersion();
         $version = $this->normalizePhpVersion($version);
-        if ($version === '') {
+        if ($version === '' && !$this->pm->supportsVersionedPackages()) {
             return;
         }
 
@@ -297,9 +297,18 @@ class PhpFpm
     {
         $extArray = [];
         $extensionPrefix = $this->pm->getPhpExtensionPrefix($version);
-        foreach (self::COMMON_EXTENSIONS as $ext) {
-            $extArray[] = "{$extensionPrefix}{$ext}";
+
+        if (($this->pm instanceof \Valet\PackageManagers\Pacman)) {
+            foreach (self::COMMON_EXTENSIONS as $ext) {
+                $extArray[] = "{$extensionPrefix}{$ext}";
+            }
+
+        } else {
+            foreach (['gd'] as $ext) {
+                $extArray[] = "{$extensionPrefix}{$ext}";
+            }
         }
+
         $this->pm->ensureInstalled(implode(' ', $extArray));
     }
 
@@ -400,6 +409,6 @@ class PhpFpm
      */
     private function getDefaultVersion(): string
     {
-        return $this->normalizePhpVersion(PHP_MAJOR_VERSION . '.' . PHP_MINOR_VERSION);
+        return !$this->pm->supportsVersionedPackages() ? '' : $this->normalizePhpVersion(PHP_MAJOR_VERSION . '.' . PHP_MINOR_VERSION);
     }
 }

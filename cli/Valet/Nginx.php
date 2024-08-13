@@ -136,6 +136,10 @@ class Nginx
      */
     public function configuredSites(): Collection
     {
+        if (!$this->files->exists(VALET_HOME_PATH . '/Nginx')) {
+            return collect([]);
+        }
+
         return collect($this->files->scandir(VALET_HOME_PATH . '/Nginx'))
             ->reject(function ($file) {
                 return str_starts_with($file, '.');
@@ -176,7 +180,7 @@ class Nginx
      */
     private function rewriteSecureNginxFiles(): void
     {
-        $domain = $this->configuration->get('domain');
+        $domain = $this->configuration->get('domain', 'test');
 
         $this->siteSecure->reSecureForNewDomain($domain, $domain);
     }

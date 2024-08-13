@@ -194,6 +194,10 @@ class SiteSecure
      */
     private function trustCa(string $caPemPath): void
     {
+        if (!$this->files->exists($this->caCertificatePath)) {
+            $this->caCertificatePath = str_replace('local/', '', $this->caCertificatePath);
+        }
+
         $this->files->copy($caPemPath, sprintf('%s%s.crt', $this->caCertificatePath, $this->caCertificatePem));
         $this->cli->run('sudo update-ca-certificates');
 

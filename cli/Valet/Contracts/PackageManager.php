@@ -48,4 +48,10 @@ interface PackageManager
      * Get package name by service
      */
     public function packageName(string $name): string;
+
+    /**
+     * This function will determine whether a package manager supports versioned
+     * packages e.g php78-cli, php-78-gd etc
+     */
+    public function supportsVersionedPackages(): bool;
 }
