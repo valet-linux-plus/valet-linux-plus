@@ -59,7 +59,7 @@ class PhpFpm
     {
         $version = $version ?: $this->getCurrentVersion();
         $version = $this->normalizePhpVersion($version);
-        if ($version === '' && !($this->pm instanceof \Valet\PackageManagers\Pacman)) {
+        if ($version === '' && !$this->pm->supportsVersionedPackages()) {
             return;
         }
 
@@ -409,6 +409,6 @@ class PhpFpm
      */
     private function getDefaultVersion(): string
     {
-        return $this->pm instanceof \Valet\PackageManagers\Pacman ? '' : $this->normalizePhpVersion(PHP_MAJOR_VERSION . '.' . PHP_MINOR_VERSION);
+        return !$this->pm->supportsVersionedPackages() ? '' : $this->normalizePhpVersion(PHP_MAJOR_VERSION . '.' . PHP_MINOR_VERSION);
     }
 }
