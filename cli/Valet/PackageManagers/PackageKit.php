@@ -149,4 +149,13 @@ class PackageKit implements PackageManager
         }
         throw new \InvalidArgumentException(\sprintf('Package not found by %s', $name));
     }
+
+    /**
+     * This function will determine whether a package manager supports versioned
+     * packages e.g php78-cli, php-78-gd etc
+     */
+    public function supportsVersionedPackages(): bool
+    {
+        return true;
+    }
 }
