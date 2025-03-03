@@ -42,7 +42,7 @@
         "ext-json": "*",
         "ext-mbstring": "*",
         "ext-xml": "*",
-        "php": "^8.2|^8.3",
+        "php": "^8.2",
         "illuminate/container": "^11.0",
         "mnapoli/silly": "^1.9",
         "symfony/process": "^7.0",
