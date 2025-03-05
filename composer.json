@@ -43,11 +43,11 @@
         "ext-mbstring": "*",
         "ext-xml": "*",
         "php": "^8.2",
-        "illuminate/container": "^11.0",
+        "illuminate/container": "^11.0 || ^12.0",
         "mnapoli/silly": "^1.9",
         "symfony/process": "^7.0",
         "nategood/httpful": "^1.0",
-        "illuminate/collections": "^11.4",
+        "illuminate/collections": "^11.4 || ^12.0",
         "uttamrabadiya/console-components": "^1.0.1"
     },
     "require-dev": {
