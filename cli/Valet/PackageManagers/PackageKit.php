@@ -116,6 +116,14 @@ class PackageKit implements PackageManager
     }
 
     /**
+     * Get the `ca-certificates` directory
+     */
+    public function getCaCertificatesPath(): string
+    {
+        return '/usr/share/pki/ca-trust-source';
+    }
+
+    /**
      * Determine php extension pattern.
      */
     public function getPhpExtensionPrefix(string $version): string

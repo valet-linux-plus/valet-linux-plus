@@ -3,22 +3,26 @@
 namespace Unit;
 
 use Mockery;
+use Mockery\MockInterface;
 use PHPUnit\Framework\MockObject\MockObject;
 use Valet\CommandLine;
 use Valet\Configuration;
+use Valet\Contracts\PackageManager;
 use Valet\Filesystem;
 use Valet\PhpFpm;
 use Valet\SiteSecure;
 use Valet\Tests\TestCase;
 
+use function Valet\resolve;
 use function Valet\swap;
 use function Valet\user;
 
 class SiteSecureTest extends TestCase
 {
-    private Filesystem|MockObject $filesystem;
-    private CommandLine|MockObject $commandLine;
-    private Configuration|MockObject $config;
+    private Filesystem|MockInterface $filesystem;
+    private PackageManager|MockInterface $pm;
+    private CommandLine|MockInterface $commandLine;
+    private Configuration|MockInterface $config;
     private SiteSecure $siteSecure;
 
     public function setUp(): void
@@ -26,13 +30,15 @@ class SiteSecureTest extends TestCase
         parent::setUp();
 
         $this->filesystem = Mockery::mock(Filesystem::class);
+        $this->pm = resolve(PackageManager::class);
         $this->commandLine = Mockery::mock(CommandLine::class);
         $this->config = Mockery::mock(Configuration::class);
 
         $this->siteSecure = new SiteSecure(
             $this->filesystem,
             $this->commandLine,
-            $this->config
+            $this->config,
+            $this->pm
         );
     }
 
@@ -43,6 +49,8 @@ class SiteSecureTest extends TestCase
     {
         $phpFpm = Mockery::mock(PhpFpm::class);
         swap(PhpFpm::class, $phpFpm);
+
+        $caCertificatesPath = $this->pm->getCaCertificatesPath();
 
         $this->filesystem
             ->shouldReceive('exists')
@@ -75,7 +83,7 @@ class SiteSecureTest extends TestCase
         $this->filesystem
             ->shouldReceive('remove')
             ->once()
-            ->with('/usr/local/share/ca-certificates/ValetLinuxCASelfSigned.pem.crt')
+            ->with($caCertificatesPath . '/ValetLinuxCASelfSigned.pem.crt')
             ->andReturnFalse();
 
         $this->commandLine
@@ -107,7 +115,7 @@ class SiteSecureTest extends TestCase
             ->once()
             ->with(
                 VALET_HOME_PATH . '/CA/ValetLinuxCASelfSigned.pem',
-                '/usr/local/share/ca-certificates/ValetLinuxCASelfSigned.pem.crt'
+                $caCertificatesPath . '/ValetLinuxCASelfSigned.pem.crt'
             );
 
         $this->commandLine

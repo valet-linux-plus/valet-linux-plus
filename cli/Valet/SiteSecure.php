@@ -3,6 +3,7 @@
 namespace Valet;
 
 use Illuminate\Support\Collection;
+use Valet\Contracts\PackageManager;
 use Valet\Facades\PhpFpm as PhpFpmFacade;
 use Valet\Traits\Paths;
 
@@ -14,7 +15,7 @@ class SiteSecure
     private CommandLine $cli;
     private Configuration $config;
 
-    private string $caCertificatePath = '/usr/local/share/ca-certificates/';
+    private string $caCertificatePath;
     private string $caCertificatePem = 'ValetLinuxCASelfSigned.pem';
     private string $caCertificateKey = 'ValetLinuxCASelfSigned.key';
     private string $caCertificateSrl = 'ValetLinuxCASelfSigned.srl';
@@ -22,8 +23,9 @@ class SiteSecure
     private string $caCertificateCommonName = 'Valet Linux CA Self Signed CN';
     private string $certificateDummyEmail = 'certificate@valet.linux';
 
-    public function __construct(Filesystem $filesystem, CommandLine $cli, Configuration $config)
+    public function __construct(Filesystem $filesystem, CommandLine $cli, Configuration $config, PackageManager $pm)
     {
+        $this->caCertificatePath = $pm->getCaCertificatesPath();
         $this->files = $filesystem;
         $this->cli = $cli;
         $this->config = $config;
@@ -185,7 +187,7 @@ class SiteSecure
      */
     private function unTrustCa(): void
     {
-        $this->files->remove(\sprintf('%s%s.crt', $this->caCertificatePath, $this->caCertificatePem));
+        $this->files->remove(\sprintf('%s/%s.crt', $this->caCertificatePath, $this->caCertificatePem));
         $this->cli->run('sudo update-ca-certificates');
     }
 
@@ -194,7 +196,7 @@ class SiteSecure
      */
     private function trustCa(string $caPemPath): void
     {
-        $this->files->copy($caPemPath, sprintf('%s%s.crt', $this->caCertificatePath, $this->caCertificatePem));
+        $this->files->copy($caPemPath, sprintf('%s/%s.crt', $this->caCertificatePath, $this->caCertificatePem));
         $this->cli->run('sudo update-ca-certificates');
 
         $this->cli->runAsUser(sprintf(
