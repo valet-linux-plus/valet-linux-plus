@@ -138,7 +138,7 @@ class Valet
         $oldHomePath = OLD_VALET_HOME_PATH;
 
         // Check if new config home already exists, then skip the process
-        if ($this->files->isDir($newHomePath)) {
+        if ($this->files->isDir($newHomePath) || !$this->files->exists($oldHomePath)) {
             return;
         }
 
