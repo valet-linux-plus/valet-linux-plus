@@ -35,6 +35,11 @@ interface PackageManager
     public function getPhpFpmName(string $version): string;
 
     /**
+     * Get Php fpm service name from distro
+     */
+    public function getCaCertificatesPath(): string;
+
+    /**
      * Get Php extension pattern from distro
      */
     public function getPhpExtensionPrefix(string $version): string;

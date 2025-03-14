@@ -117,6 +117,14 @@ class Apt implements PackageManager
     }
 
     /**
+     * Get the `ca-certificates` directory
+     */
+    public function getCaCertificatesPath(): string
+    {
+        return '/usr/share/ca-certificates';
+    }
+
+    /**
      * Determine php extension pattern.
      */
     public function getPhpExtensionPrefix(string $version): string
