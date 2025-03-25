@@ -9,6 +9,7 @@ namespace Valet\Facades;
  * @method static void        stop()
  * @method static void        restart()
  * @method static void        uninstall()
+ * @method static void        status()
  * @method static void        configure(bool $force = false)
  * @method static bool        createDatabase(string $name)
  * @method static bool        dropDatabase(string $name)
