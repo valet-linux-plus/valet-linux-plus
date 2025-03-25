@@ -4,7 +4,6 @@ namespace Unit;
 
 use Mockery;
 use Mockery\MockInterface;
-use PHPUnit\Framework\MockObject\MockObject;
 use Valet\CommandLine;
 use Valet\Configuration;
 use Valet\Contracts\PackageManager;
@@ -20,9 +19,9 @@ use function Valet\user;
 class SiteSecureTest extends TestCase
 {
     private Filesystem|MockInterface $filesystem;
-    private PackageManager|MockInterface $pm;
     private CommandLine|MockInterface $commandLine;
     private Configuration|MockInterface $config;
+    private PackageManager $pm;
     private SiteSecure $siteSecure;
 
     public function setUp(): void
@@ -30,10 +29,9 @@ class SiteSecureTest extends TestCase
         parent::setUp();
 
         $this->filesystem = Mockery::mock(Filesystem::class);
-        $this->pm = resolve(PackageManager::class);
         $this->commandLine = Mockery::mock(CommandLine::class);
         $this->config = Mockery::mock(Configuration::class);
-
+        $this->pm = resolve(PackageManager::class);
         $this->siteSecure = new SiteSecure(
             $this->filesystem,
             $this->commandLine,
