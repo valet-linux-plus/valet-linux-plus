@@ -70,6 +70,14 @@ class ValetRedis
     }
 
     /**
+     * Redis service status.
+     */
+    public function status(): void
+    {
+        $this->sm->printStatus($this->pm->packageName('redis'));
+    }
+
+    /**
      * Prepare for uninstall.
      */
     public function uninstall(): void
