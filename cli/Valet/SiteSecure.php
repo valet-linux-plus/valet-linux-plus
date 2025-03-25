@@ -14,8 +14,8 @@ class SiteSecure
     private Filesystem $files;
     private CommandLine $cli;
     private Configuration $config;
+    private PackageManager $pm;
 
-    private string $caCertificatePath;
     private string $caCertificatePem = 'ValetLinuxCASelfSigned.pem';
     private string $caCertificateKey = 'ValetLinuxCASelfSigned.key';
     private string $caCertificateSrl = 'ValetLinuxCASelfSigned.srl';
@@ -25,10 +25,10 @@ class SiteSecure
 
     public function __construct(Filesystem $filesystem, CommandLine $cli, Configuration $config, PackageManager $pm)
     {
-        $this->caCertificatePath = $pm->getCaCertificatesPath();
         $this->files = $filesystem;
         $this->cli = $cli;
         $this->config = $config;
+        $this->pm = $pm;
     }
 
     /**
@@ -187,7 +187,7 @@ class SiteSecure
      */
     private function unTrustCa(): void
     {
-        $this->files->remove(\sprintf('%s/%s.crt', $this->caCertificatePath, $this->caCertificatePem));
+        $this->files->remove(\sprintf('%s/%s.crt', $this->pm->getCaCertificatesPath(), $this->caCertificatePem));
         $this->cli->run('sudo update-ca-certificates');
     }
 
@@ -196,7 +196,10 @@ class SiteSecure
      */
     private function trustCa(string $caPemPath): void
     {
-        $this->files->copy($caPemPath, sprintf('%s/%s.crt', $this->caCertificatePath, $this->caCertificatePem));
+        $this->files->copy(
+            $caPemPath,
+            sprintf('%s/%s.crt', $this->pm->getCaCertificatesPath(), $this->caCertificatePem)
+        );
         $this->cli->run('sudo update-ca-certificates');
 
         $this->cli->runAsUser(sprintf(
