@@ -18,7 +18,7 @@ class DrupalValetDriver extends ValetDriver
          * /core/lib/Drupal.php = Drupal 8.
          */
         if (file_exists($sitePath.'/misc/drupal.js') ||
-          file_exists($sitePath.'/core/lib/Drupal.php')) {
+            file_exists($sitePath.'/core/lib/Drupal.php')) {
             return true;
         }
 
@@ -33,9 +33,11 @@ class DrupalValetDriver extends ValetDriver
         $sitePath = $this->addSubdirectory($sitePath);
 
         if (file_exists($sitePath.$uri) &&
-            ! is_dir($sitePath.$uri) &&
-            pathinfo($sitePath.$uri)['extension'] != 'php') {
-            return $sitePath.$uri;
+            ! is_dir($sitePath.$uri)) {
+            $pathInfo = pathinfo($sitePath.$uri);
+            if (! isset($pathInfo['extension']) || $pathInfo['extension'] != 'php') {
+                return $sitePath.$uri;
+            }
         }
 
         return false;
@@ -74,7 +76,7 @@ class DrupalValetDriver extends ValetDriver
      * Add any matching subdirectory to the site path.
      * @param mixed $sitePath
      */
-    public function addSubdirectory($sitePath): string
+    public function addSubdirectory(string $sitePath): string
     {
         $paths = array_map(function ($subDir) use ($sitePath) {
             return "$sitePath/$subDir";
@@ -95,6 +97,8 @@ class DrupalValetDriver extends ValetDriver
 
     /**
      * Return an array of possible subdirectories.
+     *
+     * @return array<string>
      */
     private function possibleSubdirectories(): array
     {

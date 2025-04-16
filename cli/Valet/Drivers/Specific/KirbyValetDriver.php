@@ -35,6 +35,7 @@ class KirbyValetDriver extends ValetDriver
     public function frontControllerPath(string $sitePath, string $siteName, string $uri): ?string
     {
         $scriptName = '/index.php';
+        $indexPath = null;
 
         if ($this->isActualFile($sitePath.'/index.php')) {
             $indexPath = $sitePath.'/index.php';
@@ -49,7 +50,7 @@ class KirbyValetDriver extends ValetDriver
             $indexPath = $sitePath.'/panel/index.php';
         }
 
-        $sitePathPrefix = ($isAboveWebroot) ? $sitePath.'/public' : $sitePath;
+        $sitePathPrefix = ($isAboveWebroot ?? false) ? $sitePath.'/public' : $sitePath;
 
         $_SERVER['SERVER_NAME'] = $_SERVER['HTTP_HOST'];
         $_SERVER['SCRIPT_NAME'] = $scriptName;

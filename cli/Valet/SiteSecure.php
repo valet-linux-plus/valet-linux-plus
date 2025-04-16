@@ -34,7 +34,7 @@ class SiteSecure
     /**
      * Secure the given host with TLS.
      */
-    public function secure(string $url, string $stub = null): void
+    public function secure(string $url, ?string $stub = null): void
     {
         if ($stub === null) {
             $stub = $this->prepareConf($url, true);
@@ -364,9 +364,9 @@ class SiteSecure
     }
 
     /**
-     * Extract Proxy pass of exising nginx config.
+     * Extract Proxy pass of existing nginx config.
      */
-    private function getProxyPass(string $url, string $siteConf = null): ?string
+    private function getProxyPass(string $url, ?string $siteConf = null): ?string
     {
         if ($siteConf === null && !$this->files->exists($this->nginxPath($url))) {
             return null;
@@ -404,7 +404,7 @@ class SiteSecure
     {
         if (str_contains($siteConf, '# ' . ISOLATED_PHP_VERSION)) {
             preg_match('/^# ISOLATED_PHP_VERSION=(.*?)\n/m', $siteConf, $version);
-            return $version[1];
+            return isset($version[1]) ? $version[1] : '';
         }
 
         return '';

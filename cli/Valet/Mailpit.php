@@ -63,11 +63,12 @@ class Mailpit
                     $this->files->remove('/opt/valet-linux/mailhog');
                 }
                 $domain = Configuration::get('domain');
-                if ($this->files->exists(VALET_HOME_PATH . "/Nginx/mailhog.$domain")) {
+                if (is_string($domain) && $this->files->exists(VALET_HOME_PATH . "/Nginx/mailhog.$domain")) {
                     SiteSecureFacade::unsecure("mailhog.$domain");
                 }
             }
         } catch (\DomainException $e) {
+            // Silently ignore any exceptions
         }
     }
 
@@ -157,8 +158,9 @@ class Mailpit
     private function updateDomain(): void
     {
         $domain = Configuration::get('domain');
-
-        SiteProxyFacade::proxyCreate("mails.$domain", 'http://localhost:8025', true);
+        if (is_string($domain)) {
+            SiteProxyFacade::proxyCreate("mails.$domain", 'http://localhost:8025', true);
+        }
     }
 
     private function isAvailable(): bool

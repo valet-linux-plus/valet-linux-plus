@@ -11,29 +11,24 @@ use Valet\Drivers\ValetDriver;
  */
 class Typo3ValetDriver extends ValetDriver
 {
-    /*
-    |--------------------------------------------------------------------------
-    | Document Root Subdirectory
-    |--------------------------------------------------------------------------
-    |
-    | This subdirectory contains the public server resources, such as the
-    | index.php, the typo3 and fileadmin system directories. Change it
-    | to '', if you don't use a subdirectory but valet link directly.
-    |
-    */
-    protected $documentRoot = '/web';
+    /**
+     * Document Root Subdirectory
+     *
+     * This subdirectory contains the public server resources, such as the
+     * index.php, the typo3 and fileadmin system directories.
+     */
+    protected string $documentRoot = '/web';
 
-    /*
-    |--------------------------------------------------------------------------
-    | Forbidden URI Patterns
-    |--------------------------------------------------------------------------
-    |
-    | All of these patterns won't be accessible from your web server. Instead,
-    | the server will throw a 403 forbidden response, if you try to access
-    | these files via the HTTP layer. Use regex syntax here and escape @.
-    |
-    */
-    protected $forbiddenUriPatterns = [
+    /**
+     * Forbidden URI Patterns
+     *
+     * All of these patterns won't be accessible from your web server. Instead,
+     * the server will throw a 403 forbidden response, if you try to access
+     * these files via the HTTP layer. Use regex syntax here and escape @.
+     *
+     * @var array<string>
+     */
+    protected array $forbiddenUriPatterns = [
         '_(recycler|temp)_/',
         '^/(typo3conf/ext|typo3/sysext|typo3/ext)/[^/]+/(Resources/Private|Tests)/',
         '^/typo3/.+\.map$',

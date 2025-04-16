@@ -287,6 +287,9 @@ class Mysql
     private function isDatabaseExists(string $name): bool
     {
         $query = $this->query("SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = '$name'");
+        if (!$query) {
+            return false;
+        }
         $query->execute();
 
         return (bool) $query->rowCount();
@@ -295,7 +298,7 @@ class Mysql
     /**
      * Run Mysql query.
      *
-     * @return bool|\PDOStatement|void
+     * @return bool|\PDOStatement|null
      */
     private function query(string $query)
     {
@@ -305,6 +308,7 @@ class Mysql
             return $link->query($query);
         } catch (\PDOException $e) {
             Writer::warn($e->getMessage());
+            return null;
         }
     }
 
