@@ -7,7 +7,7 @@ trait Paths
     /**
      * Get the path to the linked Valet sites.
      */
-    private function sitesPath(string $file = null): string
+    private function sitesPath(?string $file = null): string
     {
         return VALET_HOME_PATH . '/Sites' . ($file ? '/' . $file : '');
     }
@@ -15,7 +15,7 @@ trait Paths
     /**
      * Get the path to the Valet TLS certificates.
      */
-    private function certificatesPath(string $file = null): string
+    private function certificatesPath(?string $file = null): string
     {
         return VALET_HOME_PATH . '/Certificates' . ($file ? '/' . $file : '');
     }
@@ -23,7 +23,7 @@ trait Paths
     /**
      * Get the path to the Valet CA certificates.
      */
-    private function caPath(string $file = null): string
+    private function caPath(?string $file = null): string
     {
         return VALET_HOME_PATH . '/CA' . ($file ? '/' . $file : '');
     }
@@ -31,7 +31,7 @@ trait Paths
     /**
      * Get the path to Nginx site configuration files.
      */
-    private function nginxPath(string $file = null): string
+    private function nginxPath(?string $file = null): string
     {
         return VALET_HOME_PATH . '/Nginx' . ($file ? '/' . $file : '');
     }

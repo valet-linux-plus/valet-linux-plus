@@ -148,7 +148,7 @@ class DnsMasq
      */
     private function stopResolved(): void
     {
-        if (!$this->sm->disabled('systemd-resolved')) {
+        if ($this->sm->disabled('systemd-resolved') === false) {
             $this->sm->disable('systemd-resolved');
         }
         $this->sm->stop('systemd-resolved');

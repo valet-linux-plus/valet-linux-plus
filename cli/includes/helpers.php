@@ -104,7 +104,7 @@ if (!function_exists('tap')) {
 function user(): string
 {
     if (!isset($_SERVER['SUDO_USER'])) {
-        return $_SERVER['USER'];
+        return $_SERVER['USER'] ?? get_current_user();
     }
 
     return $_SERVER['SUDO_USER'];
@@ -117,7 +117,8 @@ function user(): string
 function group()
 {
     if (!isset($_SERVER['SUDO_USER'])) {
-        return exec('id -gn '.$_SERVER['USER']);
+        $user = $_SERVER['USER'] ?? get_current_user();
+        return exec('id -gn '.$user);
     }
 
     return exec('id -gn '.$_SERVER['SUDO_USER']);
@@ -125,6 +126,8 @@ function group()
 
 /**
  * Search and replace using associative array.
+ *
+ * @param array<string, string> $searchAndReplace
  */
 function strArrayReplace(array $searchAndReplace, string $subject): string
 {

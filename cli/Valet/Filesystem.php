@@ -125,13 +125,15 @@ class Filesystem
      */
     public function get(string $path): string
     {
-        return file_get_contents($path);
+        $contents = file_get_contents($path);
+        return $contents === false ? '' : $contents;
     }
 
     /**
      * Write to the given file.
+     * probably most breaking change in this class
      */
-    public function put(string $path, string $contents, ?string $owner = null): string
+    public function put(string $path, string $contents, ?string $owner = null): int
     {
         $status = file_put_contents($path, $contents);
 
@@ -139,13 +141,13 @@ class Filesystem
             $this->chown($path, $owner);
         }
 
-        return $status;
+        return $status === false ? 0 : $status;
     }
 
     /**
      * Write to the given file as the non-root user.
      */
-    public function putAsUser(string $path, string $contents): string
+    public function putAsUser(string $path, string $contents): int
     {
         return $this->put($path, $contents, user());
     }
@@ -325,7 +327,8 @@ class Filesystem
      */
     public function realpath(string $path): string
     {
-        return realpath($path);
+        $result = realpath($path);
+        return $result === false ? $path : $result;
     }
 
     /**
@@ -344,7 +347,11 @@ class Filesystem
         $link = $path;
 
         while (is_link($link)) {
-            $link = readlink($link);
+            $linkTarget = readlink($link);
+            if ($linkTarget === false) {
+                return $link;
+            }
+            $link = $linkTarget;
         }
 
         return $link;
@@ -374,10 +381,16 @@ class Filesystem
 
     /**
      * Scan the given directory path.
+     *
+     * @return array<int, string>
      */
     public function scandir(string $path): array
     {
-        return collect(scandir($path))
+        $scanResult = scandir($path);
+        if ($scanResult === false) {
+            return [];
+        }
+        return collect($scanResult)
             ->reject(function ($file) {
                 return in_array($file, ['.', '..', '.keep']);
             })->values()->all();
