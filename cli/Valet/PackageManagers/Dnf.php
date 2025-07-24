@@ -23,11 +23,12 @@ class Dnf implements PackageManager
      */
     public const PHP_FPM_PATTERN_BY_VERSION = [
         '8.3' => 'php-fpm',
+        '8.4' => 'php-fpm',
     ];
 
     private const PACKAGES = [
-        'redis' => 'redis',
-        'mysql' => 'mysql-server',
+        'redis'   => 'redis',
+        'mysql'   => 'mysql-server',
         'mariadb' => 'mariadb-server',
     ];
 
@@ -69,10 +70,10 @@ class Dnf implements PackageManager
     {
         Writer::twoColumnDetail($package, 'Installing');
 
-        $this->cli->run(trim('dnf install -y ' . $package), function ($exitCode, $errorOutput) use ($package) {
+        $this->cli->run(trim('dnf install -y '.$package), function ($exitCode, $errorOutput) use ($package) {
             Writer::error(\sprintf('%s: %s', $exitCode, $errorOutput));
 
-            throw new DomainException('Dnf was unable to install [' . $package . '].');
+            throw new DomainException('Dnf was unable to install ['.$package.'].');
         });
     }
 
