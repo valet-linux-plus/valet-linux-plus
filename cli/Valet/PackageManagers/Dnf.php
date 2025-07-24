@@ -23,6 +23,7 @@ class Dnf implements PackageManager
      */
     public const PHP_FPM_PATTERN_BY_VERSION = [
         '8.3' => 'php-fpm',
+        '8.4' => 'php-fpm',
     ];
 
     private const PACKAGES = [
