@@ -1,7 +1,6 @@
 <?php
 
 namespace Valet;
-use ConsoleComponents\Writer;
 use Symfony\Component\Process\Process;
 
 class CommandLine
@@ -51,10 +50,7 @@ class CommandLine
      */
     private function runCommand(string $command, callable $onError = null): string
     {
-        $onError = $onError ?: function ($errCode, $output) {
-            Writer::error("Command failed with exit code {$errCode}: {$output}");
-            exit($errCode);
-        };
+        $onError = $onError ?: function ($errCode, $output) {};
 
         $process = Process::fromShellCommandline($command);
 
