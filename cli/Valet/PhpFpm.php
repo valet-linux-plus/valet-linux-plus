@@ -133,7 +133,7 @@ class PhpFpm
      * Restart the PHP FPM process.
      * @param null|mixed $version
      */
-    public function restart($version = null): void
+    public function restart(?string $version = null): void
     {
         $this->sm->restart($this->serviceName($version));
     }
@@ -142,7 +142,7 @@ class PhpFpm
      * Stop the PHP FPM process.
      * @param null|mixed $version
      */
-    public function stop($version = null): void
+    public function stop(?string $version = null): void
     {
         $this->sm->stop($this->serviceName($version));
     }
@@ -151,7 +151,7 @@ class PhpFpm
      * PHP-FPM service status.
      * @param null|mixed $version
      */
-    public function status($version = null): void
+    public function status(?string $version = null): void
     {
         $this->sm->printStatus($this->serviceName($version));
     }
@@ -159,7 +159,7 @@ class PhpFpm
     /**
      * Get FPM socket file name for a given PHP version.
      */
-    public function socketFileName(string $version = null): string
+    public function socketFileName(?string $version = null): string
     {
         if (!$version) {
             $version = $this->getCurrentVersion();
@@ -192,14 +192,18 @@ class PhpFpm
      */
     public function getCurrentVersion(): string
     {
-        return $this->config->get('php_version', $this->getDefaultVersion());
+        $phpVersion = $this->config->get('php_version');
+        if (!is_string($phpVersion)) {
+            return $this->getDefaultVersion();
+        }
+        return $phpVersion;
     }
 
     /**
      * Get executable php path.
-     * @return false|string
+     * @return string|false
      */
-    public function getPhpExecutablePath(string $version = null)
+    public function getPhpExecutablePath(?string $version = null)
     {
         if (!$version) {
             return DevToolsFacade::getBin('php', ['/usr/local/bin/php']);
@@ -257,7 +261,7 @@ class PhpFpm
     /**
      * Determine php service name.
      */
-    private function serviceName(string $version = null): string
+    private function serviceName(?string $version = null): string
     {
         if (!$version) {
             $version = $this->getCurrentVersion();
@@ -277,8 +281,9 @@ class PhpFpm
             if (strpos($content, '# ' . ISOLATED_PHP_VERSION) !== false) {
                 return;
             }
+            $matchCount = [];
             preg_match_all('/unix:(.*?.sock)/m', $content, $matchCount);
-            if (!count($matchCount)) {
+            if (empty($matchCount)) {
                 return;
             }
             $content = preg_replace(
@@ -286,7 +291,9 @@ class PhpFpm
                 'unix:' . VALET_HOME_PATH . '/' . $this->socketFileName($version),
                 $content
             );
-            $this->files->put(VALET_HOME_PATH . '/Nginx/' . $file, $content);
+            if ($content !== null) {
+                $this->files->put(VALET_HOME_PATH . '/Nginx/' . $file, $content);
+            }
         });
 
         //Action 2: Update NGINX valet.conf for php socket version.
@@ -355,7 +362,7 @@ class PhpFpm
      * Get the path to the FPM configuration file for the current PHP version.
      * @throws \DomainException
      */
-    private function fpmConfigPath(string $version = null): string
+    private function fpmConfigPath(?string $version = null): string
     {
         $version = $version ?: $this->getCurrentVersion();
         $versionWithoutDot = preg_replace('~[^\d]~', '', $version);

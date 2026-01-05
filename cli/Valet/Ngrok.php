@@ -58,21 +58,26 @@ class Ngrok
 
     /**
      * Get the current tunnel URL from the Ngrok API.
+     *
      * @throws Exception
      */
     public function currentTunnelUrl(): ?string
     {
-        return retry(20, function () {
-            $body = RequestFacade::get(self::TUNNEL_ENDPOINT)->send()->body;
+        try {
+            return retry(20, function (): ?string {
+                $body = RequestFacade::get(self::TUNNEL_ENDPOINT)->send()->body;
 
-            // If there are active tunnels on the Ngrok instance we will spin through them and
-            // find the one responding on HTTP. Each tunnel has an HTTP and a HTTPS address
-            // but for local testing purposes we just desire the plain HTTP URL endpoint.
-            if (isset($body->tunnels) && count($body->tunnels) > 0) {
-                return $this->findHttpTunnelUrl($body->tunnels);
-            }
-            throw new DomainException('Tunnel not established.');
-        }, 250);
+                // If there are active tunnels on the Ngrok instance we will spin through them and
+                // find the one responding on HTTP. Each tunnel has an HTTP and a HTTPS address
+                // but for local testing purposes we just desire the plain HTTP URL endpoint.
+                if (isset($body->tunnels) && count($body->tunnels) > 0) {
+                    return $this->findHttpTunnelUrl($body->tunnels);
+                }
+                throw new DomainException('Tunnel not established.');
+            }, 250);
+        } catch (Exception $e) {
+            return null;
+        }
     }
 
     /**

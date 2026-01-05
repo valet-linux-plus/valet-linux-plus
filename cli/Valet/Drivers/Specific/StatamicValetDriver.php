@@ -32,13 +32,17 @@ class StatamicValetDriver extends LaravelValetDriver
     /**
      * Get the path to the static file.
      */
-    private function getStaticPath(string $sitePath)
+    private function getStaticPath(string $sitePath): ?string
     {
         if (! $uri = $_SERVER['REQUEST_URI'] ?? null) {
-            return;
+            return null;
         }
 
         $parts = parse_url($uri);
+        if (!is_array($parts) || !isset($parts['path'])) {
+            return null;
+        }
+
         $query = $parts['query'] ?? '';
 
         return $sitePath.'/public/static'.$parts['path'].'_'.$query.'.html';

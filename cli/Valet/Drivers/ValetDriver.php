@@ -82,6 +82,8 @@ abstract class ValetDriver
 
     /**
      * Get all the driver classes in a given path.
+     *
+     * @return array<string>
      */
     public static function driversIn(string $path): array
     {
@@ -96,9 +98,10 @@ abstract class ValetDriver
         $regex = new RegexIterator($iterator, '/^.+ValetDriver\.php$/i', RecursiveRegexIterator::GET_MATCH);
 
         foreach ($regex as $file) {
-            require_once $file[0];
-
-            $drivers[] = basename($file[0], '.php');
+            if (isset($file[0]) && file_exists($file[0])) {
+                require_once $file[0];
+                $drivers[] = basename($file[0], '.php');
+            }
         }
 
         return $drivers;
@@ -106,6 +109,8 @@ abstract class ValetDriver
 
     /**
      * Get all the specific drivers shipped with Valet.
+     *
+     * @return array<string>
      */
     public static function specificDrivers(): array
     {
@@ -116,6 +121,8 @@ abstract class ValetDriver
 
     /**
      * Get all of the custom drivers defined by the user locally.
+     *
+     * @return array<string>
      */
     public static function customDrivers(): array
     {
@@ -210,12 +217,18 @@ abstract class ValetDriver
         }
 
         $composerJsonSource = file_get_contents($sitePath.'/composer.json');
-        $composerJson = json_decode($composerJsonSource, true);
-
-        if (json_last_error() !== JSON_ERROR_NONE) {
+        if ($composerJsonSource === false) {
             return false;
         }
 
-        return isset($composerJson['require'][$namespacedPackage]);
+        $composerJson = json_decode($composerJsonSource, true);
+
+        if (json_last_error() !== JSON_ERROR_NONE || !is_array($composerJson)) {
+            return false;
+        }
+
+        return isset($composerJson['require']) &&
+            is_array($composerJson['require']) &&
+            isset($composerJson['require'][$namespacedPackage]);
     }
 }

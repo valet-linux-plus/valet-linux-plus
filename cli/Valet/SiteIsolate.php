@@ -92,6 +92,8 @@ class SiteIsolate
 
     /**
      * List isolated directories with version.
+     *
+     * @return Collection<string, array<string, mixed>>
      */
     public function isolatedDirectories(): Collection
     {

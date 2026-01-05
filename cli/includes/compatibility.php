@@ -3,7 +3,7 @@
 /**
  * Check the system's compatibility with Valet.
  */
-$inTestingEnvironment = strpos($_SERVER['SCRIPT_NAME'], 'phpunit') !== false;
+$inTestingEnvironment = strpos($_SERVER['SCRIPT_NAME'] ?? '', 'phpunit') !== false;
 
 if (PHP_OS != 'Linux' && !$inTestingEnvironment) {
     echo 'Valet only supports Linux.'.PHP_EOL;

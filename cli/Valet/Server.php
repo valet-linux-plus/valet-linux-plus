@@ -6,7 +6,7 @@ class Server
 {
     /**
      * @var array
-    */
+     */
     public $config;
 
     public function __construct(array $config)
@@ -33,7 +33,7 @@ class Server
     /**
      * Show the Valet 404 "Not Found" page.
      */
-    public static function show404()
+    public static function show404(): never
     {
         http_response_code(404);
         require_once __DIR__.'/../../cli/templates/404.html';
@@ -43,7 +43,7 @@ class Server
     /**
      * Show directory listing or 404 if directory doesn't exist.
      */
-    public static function showDirectoryListing(string $valetSitePath, string $uri)
+    public static function showDirectoryListing(string $valetSitePath, string $uri): never
     {
         $isRoot = ($uri == '/');
         $directory = ($isRoot) ? $valetSitePath : $valetSitePath.$uri;
@@ -54,6 +54,10 @@ class Server
 
         // Sort directories at the top
         $paths = glob("$directory/*");
+        if ($paths === false) {
+            $paths = [];
+        }
+
         usort($paths, function ($a, $b) {
             return (is_dir($a) == is_dir($b)) ? strnatcasecmp($a, $b) : (is_dir($a) ? -1 : 1);
         });
@@ -77,7 +81,8 @@ class Server
      */
     public static function hostIsIpAddress(string $host): bool
     {
-        return preg_match('/^(\d+\.){3}\d+$/', $host);
+        $result = preg_match('/^(\d+\.){3}\d+$/', $host);
+        return $result === 1;
     }
 
     /**

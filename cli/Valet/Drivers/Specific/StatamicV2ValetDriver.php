@@ -96,6 +96,8 @@ class StatamicV2ValetDriver extends ValetDriver
 
     /**
      * Get the list of possible locales used in the first segment of a URI.
+     *
+     * @return array<string>
      */
     public function getLocales(): array
     {
@@ -120,11 +122,14 @@ class StatamicV2ValetDriver extends ValetDriver
     /**
      * Get the path to a statically cached page.
      */
-    protected function getStaticPath(string $sitePath): string
+    protected function getStaticPath(string $sitePath): ?string
     {
         $parts = parse_url($_SERVER['REQUEST_URI']);
-        $query = isset($parts['query']) ? $parts['query'] : '';
+        if (!is_array($parts) || !isset($parts['path'])) {
+            return null;
+        }
 
+        $query = $parts['query'] ?? '';
         return $sitePath.'/static'.$parts['path'].'_'.$query.'.html';
     }
 }

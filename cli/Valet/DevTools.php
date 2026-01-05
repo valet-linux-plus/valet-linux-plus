@@ -48,13 +48,15 @@ class DevTools
     /**
      * @param string[] $ignoredServices
      */
-    public function getBin(string $service, array $ignoredServices = []): false|string
+    public function getBin(string $service, array $ignoredServices = []): string|false
     {
         $bin = $this->getService($service);
 
-        $bin = trim($bin, "\n");
-        if (count($ignoredServices) && in_array($bin, $ignoredServices)) {
-            $bin = null;
+        if (is_string($bin)) {
+            $bin = trim($bin, "\n");
+            if (count($ignoredServices) && in_array($bin, $ignoredServices)) {
+                $bin = null;
+            }
         }
 
         if (!$bin) {
@@ -65,22 +67,24 @@ class DevTools
             return false;
         }
 
-        $bin = trim($bin, "\n");
-        /** @var string[] $bins */
-        $bins = preg_split('/\n/', $bin);
-        $servicePath = null;
-        foreach ($bins as $bin) {
-            if ((count($ignoredServices) && !in_array($bin, $ignoredServices))
-                || !count($ignoredServices)
-            ) {
-                $servicePath = $bin;
-                break;
+        if (is_string($bin)) {
+            $bin = trim($bin, "\n");
+            /** @var string[] $bins */
+            $bins = preg_split('/\n/', $bin);
+            $servicePath = null;
+            foreach ($bins as $bin) {
+                if ((count($ignoredServices) && !in_array($bin, $ignoredServices))
+                    || !count($ignoredServices)
+                ) {
+                    $servicePath = $bin;
+                    break;
+                }
             }
-        }
-        if ($servicePath !== null) {
-            /** @var string $servicePath */
-            $servicePath = preg_replace('/\s\s+/', ' ', $servicePath);
-            return trim($servicePath);
+            if ($servicePath !== null) {
+                /** @var string $servicePath */
+                $servicePath = preg_replace('/\s\s+/', ' ', $servicePath);
+                return trim($servicePath);
+            }
         }
 
         return false;
