@@ -249,8 +249,12 @@ if (is_dir(VALET_HOME_PATH)) {
      * Remove the current working directory to paths configuration.
      */
     $app->command('status', function () {
-        PhpFpm::status();
+        DnsMasq::status();
         Nginx::status();
+        PhpFpm::status();
+        Mysql::status();
+        Mailpit::status();
+        ValetRedis::status();
     })->descriptions('View Valet service status');
 
     /**

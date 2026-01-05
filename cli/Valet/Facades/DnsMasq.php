@@ -10,6 +10,7 @@ namespace Valet\Facades;
  * @method static void restart()
  * @method static void updateDomain(string $newDomain)
  * @method static void uninstall()
+ * @method static void status()
  */
 class DnsMasq extends Facade
 {

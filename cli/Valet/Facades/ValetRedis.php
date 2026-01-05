@@ -9,6 +9,7 @@ namespace Valet\Facades;
  * @method static void uninstall()
  * @method static void restart()
  * @method static void stop()
+ * @method static void status()
  */
 class ValetRedis extends Facade
 {

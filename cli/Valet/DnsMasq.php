@@ -54,6 +54,14 @@ class DnsMasq
     }
 
     /**
+     * DnsMasq service status.
+     */
+    public function status(): void
+    {
+        $this->sm->printStatus('dnsmasq');
+    }
+
+    /**
      * Restart the DnsMasq service.
      */
     public function restart(): void
