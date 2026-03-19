@@ -122,6 +122,14 @@ class Pacman implements PackageManager
     }
 
     /**
+     * Get PHP FPM service name for systemd.
+     */
+    public function getPhpFpmServiceName(string $version): string
+    {
+        return $this->getPhpFpmName($version);
+    }
+
+    /**
      * Get the `ca-certificates` directory
      */
     public function getCaCertificatesPath(): string
@@ -137,6 +145,14 @@ class Pacman implements PackageManager
         $version = preg_replace('~[^\d]~', '', $version);
         $pattern = 'php{VERSION_WITHOUT_DOT}-';
         return str_replace('{VERSION_WITHOUT_DOT}', $version, $pattern);
+    }
+
+    /**
+     * Get PHP extension name for a given extension.
+     */
+    public function getPhpExtensionName(string $version, string $extension): string
+    {
+        return $this->getPhpExtensionPrefix($version) . $extension;
     }
 
     /**

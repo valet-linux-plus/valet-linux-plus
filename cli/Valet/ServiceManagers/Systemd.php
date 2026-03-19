@@ -178,13 +178,14 @@ class Systemd implements ServiceManager
      */
     private function getRealService(string $service): string
     {
-        return collect($service)->first(
-            function ($service) {
-                return strpos($this->cli->run("systemctl status $service | grep Loaded"), 'Loaded: loaded');
-            },
-            function () {
-                throw new DomainException('Unable to determine service name.');
-            }
-        );
+        // Try to find the real service name by checking systemctl status
+        $output = $this->cli->run("systemctl status $service 2>&1 | grep Loaded");
+        if (strpos($output, 'Loaded: loaded') !== false) {
+            return $service;
+        }
+
+        // If service not found, return the original service name
+        // This allows valet to work even if systemctl status requires sudo
+        return $service;
     }
 }

@@ -35,6 +35,11 @@ interface PackageManager
     public function getPhpFpmName(string $version): string;
 
     /**
+     * Get Php fpm service name from distro (for systemd)
+     */
+    public function getPhpFpmServiceName(string $version): string;
+
+    /**
      * Get Php fpm service name from distro
      */
     public function getCaCertificatesPath(): string;
@@ -43,6 +48,11 @@ interface PackageManager
      * Get Php extension pattern from distro
      */
     public function getPhpExtensionPrefix(string $version): string;
+
+    /**
+     * Get PHP extension name for a given extension
+     */
+    public function getPhpExtensionName(string $version, string $extension): string;
 
     /**
      * Restart network manager in distro

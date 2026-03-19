@@ -116,6 +116,14 @@ class PackageKit implements PackageManager
     }
 
     /**
+     * Get PHP FPM service name for systemd.
+     */
+    public function getPhpFpmServiceName(string $version): string
+    {
+        return $this->getPhpFpmName($version);
+    }
+
+    /**
      * Get the `ca-certificates` directory
      */
     public function getCaCertificatesPath(): string
@@ -130,6 +138,14 @@ class PackageKit implements PackageManager
     {
         $pattern = 'php{VERSION}-';
         return str_replace('{VERSION}', $version, $pattern);
+    }
+
+    /**
+     * Get PHP extension name for a given extension.
+     */
+    public function getPhpExtensionName(string $version, string $extension): string
+    {
+        return $this->getPhpExtensionPrefix($version) . $extension;
     }
 
     /**
