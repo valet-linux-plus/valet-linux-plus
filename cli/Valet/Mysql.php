@@ -311,7 +311,7 @@ class Mysql
     /**
      * Validate Username & Password.
      */
-    private function validateCredentials(string $username, string $password): bool
+    private function validateCredentials(string $username, ?string $password): bool
     {
         try {
             // Create connection
