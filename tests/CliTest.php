@@ -1027,6 +1027,10 @@ class CliTest extends TestCase
             $arguments['--site'] = $siteName;
         }
 
+        $interact = Mockery::mock(\Valet\Interact::class);
+        $interact->shouldReceive('multiselect')->andReturn([$expectedSiteName]);
+        swap(\Valet\Interact::class, $interact);
+
         $this->tester->run([
             'command'    => 'isolate',
             ...$arguments
@@ -1047,25 +1051,32 @@ class CliTest extends TestCase
     /**
      * @test
      */
-    public function itWillFailWhenRequireArgumentIsNotAvailable(): void
+    public function itWillIsolateWithInteractivePrompts(): void
     {
         Writer::fake();
 
+        $phpVersion = '8.2';
+        $siteName = 'valet-linux-plus';
+
+        $interact = Mockery::mock(\Valet\Interact::class);
+        $interact->shouldReceive('select')->once()->andReturn($phpVersion);
+        $interact->shouldReceive('multiselect')->once()->andReturn([$siteName]);
+        swap(\Valet\Interact::class, $interact);
+
         $siteIsolate = Mockery::mock(SiteIsolate::class);
-        $siteIsolate->shouldReceive('isolateDirectory')->never();
+        $siteIsolate->shouldReceive('isolateDirectory')
+            ->with($siteName, $phpVersion, false)
+            ->once()
+            ->andReturnTrue();
         swap(SiteIsolate::class, $siteIsolate);
 
         $this->tester->run(['command' => 'isolate']);
 
         $this->tester->assertCommandIsSuccessful();
 
-        /** @var BufferedOutput $output */
-        $output = Writer::output();
-
-        $content = $output->fetch();
         $this->assertStringContainsString(
-            sprintf('Please select version to isolate'),
-            $content
+            sprintf('The site [%s] is now using %s.', $siteName, $phpVersion),
+            Writer::output()->fetch()
         );
     }
 

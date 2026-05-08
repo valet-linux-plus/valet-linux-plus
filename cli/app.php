@@ -8,6 +8,7 @@ use Valet\Facades\Configuration;
 use Valet\Facades\DevTools;
 use Valet\Facades\DnsMasq;
 use Valet\Facades\Filesystem;
+use Valet\Facades\Interact;
 use Valet\Facades\Mailpit;
 use Valet\Facades\Mysql;
 use Valet\Facades\Nginx;
@@ -56,14 +57,56 @@ $app->command('install [--ignore-selinux] [--mariadb]', function ($ignoreSELinux
     passthru(dirname(__FILE__) . '/scripts/update.sh'); // Clean up cruft
     Requirements::setIgnoreSELinux($ignoreSELinux)->check();
     Configuration::install();
-    Nginx::install();
-    PhpFpm::install();
-    DnsMasq::install(Configuration::get('domain'));
-    Mailpit::install();
-    ValetRedis::install();
-    Nginx::restart();
-    Mysql::install($mariadb);
-    Ngrok::install();
+
+    $services = Interact::multiselect(
+        label: 'Which services do you want to install/configure?',
+        options: [
+            'nginx' => 'Nginx',
+            'php-fpm' => 'PHP-FPM',
+            'dnsmasq' => 'DnsMasq',
+            'mailpit' => 'Mailpit',
+            'redis' => 'Redis',
+            'mysql' => 'MySQL/MariaDB',
+            'ngrok' => 'Ngrok',
+        ],
+        default: Configuration::get('services', ['nginx', 'php-fpm', 'dnsmasq', 'mailpit', 'redis', 'mysql', 'ngrok']),
+        scroll: 15
+    );
+
+    Configuration::set('services', $services);
+
+    if (in_array('nginx', $services)) {
+        Nginx::install();
+    }
+
+    if (in_array('php-fpm', $services)) {
+        PhpFpm::install();
+    }
+
+    if (in_array('dnsmasq', $services)) {
+        DnsMasq::install(Configuration::get('domain'));
+    }
+
+    if (in_array('mailpit', $services)) {
+        Mailpit::install();
+    }
+
+    if (in_array('redis', $services)) {
+        ValetRedis::install();
+    }
+
+    if (in_array('nginx', $services)) {
+        Nginx::restart();
+    }
+
+    if (in_array('mysql', $services)) {
+        Mysql::install($mariadb);
+    }
+
+    if (in_array('ngrok', $services)) {
+        Ngrok::install();
+    }
+
     Valet::symlinkToUsersBin();
 
     Writer::info('Valet installed successfully!');
@@ -713,23 +756,34 @@ if (is_dir(VALET_HOME_PATH)) {
      * Allow the user to change the version of PHP Valet uses to serve the current site.
      */
     $app->command('isolate [phpVersion] [--site=] [--secure]', function ($phpVersion, $site, $secure) {
-        if (!$site) {
-            $site = basename((string)getcwd());
-        }
-
-        if ($phpVersion === null && $phpVersion = Site::phpRcVersion($site)) {
-            Writer::info("Found '$site/.valetphprc' specifying version: $phpVersion");
-        }
-
         if ($phpVersion === null) {
-            Writer::warn('Please select version to isolate');
-            return;
+            $phpVersion = Interact::select(
+                label: 'Which PHP version would you like to use?',
+                options: \Valet\PhpFpm::ISOLATION_SUPPORTED_PHP_VERSIONS,
+                default: \Valet\Facades\PhpFpm::getCurrentVersion()
+            );
         }
 
-        $isSuccess = SiteIsolate::isolateDirectory($site, $phpVersion, $secure);
+        $phpVersion = PhpFpm::normalizePhpVersion($phpVersion);
 
-        if ($isSuccess) {
-            Writer::info(sprintf('The site [%s] is now using %s.', $site, $phpVersion));
+        if (!$site) {
+            $sites = Interact::multiselect(
+                label: 'Which sites would you like to isolate?',
+                options: Site::servedSites()->keys()->toArray(),
+                default: [basename((string)getcwd())]
+            );
+        } else {
+            $sites = [$site];
+        }
+
+        foreach ($sites as $siteName) {
+            $domain = Configuration::parseDomain($siteName);
+            $isSecured = $secure || SiteSecure::secured()->contains($domain);
+            $isSuccess = SiteIsolate::isolateDirectory($siteName, $phpVersion, $isSecured);
+
+            if ($isSuccess) {
+                Writer::info(sprintf('The site [%s] is now using %s.', $siteName, $phpVersion));
+            }
         }
     })->descriptions('Change the version of PHP used by Valet to serve the current working directory', [
         'phpVersion' => 'The PHP version you want to use; e.g php@8.1',
