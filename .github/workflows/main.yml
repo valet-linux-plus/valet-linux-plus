@@ -13,6 +13,7 @@ jobs:
           - 8.3
           - 8.4
           - 8.5
+          - 8.6
     steps:
       - uses: actions/checkout@v2
       - name: Set up PHP
